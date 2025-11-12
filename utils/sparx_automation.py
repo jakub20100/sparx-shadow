@@ -10,7 +10,7 @@ import time
 import random
 import json
 from utils.math_solver import MathSolver
-from ocr_parser import OCRParser
+from utils.ocr_parser import OCRParser
 
 class SparxAutomation:
     def __init__(self):
