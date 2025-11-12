@@ -1,0 +1,16 @@
+# Additional or updated Python dependencies for Sparx Shadow.
+# This file supplements the original requirements.txt and lists packages
+# that are required but were missing or outdated.
+
+Flask==2.3.3
+flask-socketio==5.3.6
+gevent==23.9.1
+selenium==4.15.2
+webdriver-manager==4.0.1
+sympy==1.12
+numpy==1.24.3
+matplotlib==3.7.2
+Pillow==10.0.1
+pytesseract==0.3.10
+opencv-python==4.8.1.78
+python-dotenv==1.0.0
