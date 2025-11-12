@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sparx Shadow - Elite Math Automation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.birds.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --glass: rgba(20, 20, 30, 0.6);
+            --border: rgba(100, 200, 255, 0.3);
+            --accent: #00d4ff;
+            --text: #e0f7ff;
+            --glow: 0 0 15px rgba(0, 212, 255, 0.4);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        .space-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            box-shadow: var(--glow);
+            border-radius: 16px;
+        }
+        
+        .glass-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-button {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(100, 200, 255, 0.1));
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            color: var(--text);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(100, 200, 255, 0.2));
+        }
+        
+        .glass-button:active {
+            transform: translateY(0);
+        }
+        
+        .glass-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .glass-button:hover::before {
+            left: 100%;
+        }
+        
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+        
+        .glow-text {
+            text-shadow: var(--glow);
+        }
+        
+        .orbital-loader {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            margin: 0 auto;
+        }
+        
+        .orbital-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--accent);
+            border-radius: 50%;
+            animation: orbit 1.5s linear infinite;
+        }
+        
+        .orbital-ring:nth-child(2) {
+            border-top-color: rgba(100, 200, 255, 0.6);
+            animation-delay: 0.2s;
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+        }
+        
+        .orbital-ring:nth-child(3) {
+            border-top-color: rgba(150, 220, 255, 0.4);
+            animation-delay: 0.4s;
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+        }
+        
+        @keyframes orbit {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: var(--glow);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        .floating-label {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(224, 247, 255, 0.7);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .glass-input:focus + .floating-label,
+        .glass-input:not(:placeholder-shown) + .floating-label {
+            top: -8px;
+            left: 8px;
+            font-size: 12px;
+            color: var(--accent);
+        }
+        
+        .ethical-banner {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.05));
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            backdrop-filter: blur(8px);
+        }
+        
+        .nav-glass {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .hero-content {
+            z-index: 10;
+            position: relative;
+        }
+        
+        .cyber-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            animation: grid-move 20s linear infinite;
+        }
+        
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Particles Background -->
+    <div class="floating-particles" id="particles"></div>
+    
+    <!-- Navigation -->
+    <nav class="nav-glass fixed top-0 left-0 right-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="status-indicator"></div>
+                <h1 class="text-xl font-bold space-font glow-text">SPARX SHADOW</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="glass-button px-4 py-2 rounded-lg text-sm">
+                    <i class="fas fa-cog mr-2"></i>Settings
+                </button>
+                <button class="glass-button px-4 py-2 rounded-lg text-sm">
+                    <i class="fas fa-question-circle mr-2"></i>Help
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="cyber-grid"></div>
+        
+        <div class="hero-content max-w-4xl mx-auto px-6 text-center">
+            <h1 class="text-6xl md:text-8xl font-bold space-font glow-text mb-6">
+                <span class="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                    SPARX SHADOW
+                </span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-12 text-cyan-100">
+                Elite Mathematics Automation for Educational Excellence
+            </p>
+            
+            <!-- Login Form -->
+            <div class="glass-panel p-8 max-w-md mx-auto">
+                <h2 class="text-2xl font-bold mb-6 space-font">Authentication</h2>
+                
+                <form id="loginForm" class="space-y-6">
+                    <div class="relative">
+                        <input type="text" id="schoolInput" class="glass-input w-full px-4 py-3 rounded-lg" placeholder=" " required>
+                        <label for="schoolInput" class="floating-label">School Name</label>
+                    </div>
+                    
+                    <div class="relative">
+                        <input type="text" id="usernameInput" class="glass-input w-full px-4 py-3 rounded-lg" placeholder=" " required>
+                        <label for="usernameInput" class="floating-label">Username</label>
+                    </div>
+                    
+                    <div class="relative">
+                        <input type="password" id="passwordInput" class="glass-input w-full px-4 py-3 rounded-lg" placeholder=" " required>
+                        <label for="passwordInput" class="floating-label">Password</label>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" id="ethicalMode" class="rounded">
+                            <span class="text-sm">Ethical Mode (Show Steps)</span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="glass-button w-full py-3 rounded-lg font-semibold space-font">
+                        <span id="loginText">LAUNCH AUTOMATION</span>
+                        <div id="loginLoader" class="orbital-loader hidden">
+                            <div class="orbital-ring"></div>
+                            <div class="orbital-ring"></div>
+                            <div class="orbital-ring"></div>
+                        </div>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Ethical Warning -->
+            <div class="ethical-banner mt-8 p-4 rounded-lg max-w-2xl mx-auto">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                    <div class="text-left">
+                        <h3 class="font-semibold text-yellow-400">Educational Purpose Only</h3>
+                        <p class="text-sm text-yellow-200">This tool is designed for educational understanding and responsible use. Please use ethically.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                container.appendChild(particle);
+            }
+        }
+        
+        // Login form handling
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loginText = document.getElementById('loginText');
+            const loginLoader = document.getElementById('loginLoader');
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            
+            // Show loading state
+            loginText.classList.add('hidden');
+            loginLoader.classList.remove('hidden');
+            submitButton.disabled = true;
+            
+            // Get form data
+            const formData = {
+                school: document.getElementById('schoolInput').value,
+                username: document.getElementById('usernameInput').value,
+                password: document.getElementById('passwordInput').value,
+                ethical_mode: document.getElementById('ethicalMode').checked
+            };
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Redirect to dashboard
+                    window.location.href = '/dashboard';
+                } else {
+                    // Show error
+                    alert('Login failed: ' + result.message);
+                    
+                    // Reset button
+                    loginText.classList.remove('hidden');
+                    loginLoader.classList.add('hidden');
+                    submitButton.disabled = false;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('An error occurred during login');
+                
+                // Reset button
+                loginText.classList.remove('hidden');
+                loginLoader.classList.add('hidden');
+                submitButton.disabled = false;
+            }
+        });
+        
+        // Initialize particles on load
+        document.addEventListener('DOMContentLoaded', createParticles);
+        
+        // Add smooth scrolling and animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate elements on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe elements for animation
+            document.querySelectorAll('.glass-panel, .ethical-banner').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
